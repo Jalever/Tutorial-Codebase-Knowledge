@@ -136,20 +136,26 @@ def crawl_github_files(
     repo = path_parts[1]
     
     # Check if URL contains a specific branch/commit
-    if 'tree' in path_parts:
+    if len(path_parts) > 2 and 'tree' in path_parts:
         tree_index = path_parts.index('tree')
         ref = path_parts[tree_index + 1]
         # Combine all parts after the ref as the path
         path_start = tree_index + 2
         specific_path = '/'.join(path_parts[path_start:]) if path_start < len(path_parts) else ""
     else:
+        # Default to main branch if no specific branch is provided
         ref = "main"  # Default branch
         specific_path = ""
+
+    print(f"Parsed GitHub URL: owner={owner}, repo={repo}, ref={ref}, path={specific_path}")
     
     # Setup for GitHub API
     headers = {"Accept": "application/vnd.github.v3+json"}
     if token:
         headers["Authorization"] = f"token {token}"
+        print(f"Using GitHub token for authentication (token length: {len(token)})")
+    else:
+        print("Warning: No GitHub token provided. Rate limits may apply.")
     
     # Dictionary to store path -> content mapping
     files = {}
